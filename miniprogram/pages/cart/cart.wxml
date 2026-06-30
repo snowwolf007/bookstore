@@ -1,0 +1,32 @@
+<!-- 购物车 -->
+<view class="page">
+  <view wx:if="{{cart.length === 0}}" class="empty-state">
+    <view class="icon">🛒</view>
+    <view class="text">购物车是空的</view>
+    <view class="sub">去首页挑选喜欢的书刊吧</view>
+    <button class="btn-go" bindtap="goHome">去逛逛</button>
+  </view>
+
+  <view wx:else>
+    <view class="cart-list">
+      <view class="cart-item" wx:for="{{cart}}" wx:key="id">
+        <image class="cover" src="{{item.coverUrl}}" mode="aspectFill" />
+        <view class="info">
+          <view class="title">{{item.title}}</view>
+          <view class="price">¥{{item.price || '?'}}</view>
+          <view class="qty-row">
+            <view class="qty-btn" data-index="{{index}}" data-op="minus" bindtap="changeQty">−</view>
+            <text class="qty-num">{{item.quantity}}</text>
+            <view class="qty-btn" data-index="{{index}}" data-op="plus" bindtap="changeQty">+</view>
+          </view>
+        </view>
+        <view class="del" data-index="{{index}}" bindtap="removeItem">✕</view>
+      </view>
+    </view>
+
+    <view class="footer">
+      <view class="total">合计：<text class="total-price">¥{{totalPrice}}</text></view>
+      <button class="btn-checkout" bindtap="checkout">结算</button>
+    </view>
+  </view>
+</view>

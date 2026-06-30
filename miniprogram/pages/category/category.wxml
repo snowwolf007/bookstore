@@ -1,0 +1,38 @@
+<!-- 分类页 -->
+<view class="page">
+  <view class="layout">
+    <!-- 左侧分类列表 -->
+    <scroll-view class="left" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="cat-item {{activeCat === index ? 'active' : ''}}" 
+            wx:for="{{categories}}" wx:key="id" 
+            data-index="{{index}}" bindtap="selectCat">
+        <view class="cat-dot"></view>
+        <text>{{item.name}}</text>
+        <text class="count">{{item.count || ''}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 右侧书籍列表 -->
+    <scroll-view class="right" scroll-y enhanced show-scrollbar="{{false}}" bindscrolltolower="loadMore">
+      <view wx:if="{{loading}}" class="loading">加载中...</view>
+      <view wx:elif="{{books.length === 0}}" class="empty-state">
+        <view class="icon">📖</view>
+        <view class="text">暂无书籍</view>
+      </view>
+      <view wx:else>
+        <view class="book-card" wx:for="{{books}}" wx:key="id" data-id="{{item.id}}" bindtap="toBook">
+          <image class="cover" src="{{item.coverUrl}}" mode="aspectFill" />
+          <view class="info">
+            <view>
+              <view class="title">{{item.title_cn || item.title_en || item.title}}</view>
+              <view class="author">{{item.author || ''}}</view>
+            </view>
+            <view class="meta">
+              <view class="price">¥{{item.price || '?'}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

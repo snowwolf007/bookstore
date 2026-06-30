@@ -1,0 +1,131 @@
+/* 书籍详情 */
+.page { padding-bottom: 80px; }
+
+.cover-section {
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  padding: 30px 20px;
+}
+.cover-big {
+  width: 200px;
+  height: 280px;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+  background: #f0ede8;
+}
+
+.info-section {
+  background: #fff;
+  padding: 20px 16px;
+  margin-top: 8px;
+}
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.4;
+}
+.title-en {
+  font-size: 14px;
+  color: #999;
+  margin-top: 6px;
+}
+
+.info-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.info-item {
+  width: calc(50% - 4px);
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+.info-item .label {
+  color: #999;
+  margin-right: 4px;
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0ede8;
+}
+.price {
+  font-size: 28px;
+  font-weight: 700;
+  color: #c0392b;
+}
+.stock {
+  font-size: 13px;
+  color: #2e7d32;
+}
+.stock.out {
+  color: #c62828;
+}
+
+.section {
+  background: #fff;
+  padding: 20px 16px;
+  margin-top: 8px;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 12px;
+}
+.desc-text {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.7;
+}
+.catalog-text {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+/* 底部操作栏 */
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #fff;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.06);
+}
+.action-bar button {
+  flex: 1;
+  height: 44px;
+  line-height: 44px;
+  border-radius: 22px;
+  font-size: 15px;
+  border: none;
+}
+.btn-cart {
+  background: #fff;
+  color: #2c3e50;
+  border: 1px solid #2c3e50;
+}
+.btn-buy {
+  background: #2c3e50;
+  color: #fff;
+}
+
+.loading-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+}

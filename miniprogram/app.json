@@ -1,0 +1,57 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/category/category",
+    "pages/book/book",
+    "pages/search/search",
+    "pages/cart/cart",
+    "pages/mine/mine"
+  ],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "建筑书店",
+    "navigationBarBackgroundColor": "#2c3e50",
+    "backgroundColor": "#f5f0eb"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#2c3e50",
+    "backgroundColor": "#fff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home_active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/category/category",
+        "iconPath": "images/category.png",
+        "selectedIconPath": "images/category_active.png",
+        "text": "分类"
+      },
+      {
+        "pagePath": "pages/search/search",
+        "iconPath": "images/search.png",
+        "selectedIconPath": "images/search_active.png",
+        "text": "搜索"
+      },
+      {
+        "pagePath": "pages/cart/cart",
+        "iconPath": "images/cart.png",
+        "selectedIconPath": "images/cart_active.png",
+        "text": "购物车"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "iconPath": "images/mine.png",
+        "selectedIconPath": "images/mine_active.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

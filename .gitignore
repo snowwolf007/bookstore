@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+*.db
+*.db-*
+bookstore.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads (keep the directory, ignore files)
+uploads/covers/
+uploads/catalogs/
+
+# Debug / 测试文件
+debug_*.py
+test_*.py
+gen_template.py
+import_books.py
+link_covers.py
+run.py
+
+# Temp
+__pycache__/
+*.pyc

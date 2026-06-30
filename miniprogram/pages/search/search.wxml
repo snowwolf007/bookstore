@@ -1,0 +1,36 @@
+<!-- 搜索页 -->
+<view class="page">
+  <view class="search-bar">
+    <input placeholder="搜索书名、作者、ISBN..." bindinput="onInput" bindconfirm="onSearch" value="{{keyword}}" />
+    <view class="btn" bindtap="onSearch">搜索</view>
+  </view>
+
+  <view wx:if="{{!searched}}" class="empty-state">
+    <view class="icon">🔍</view>
+    <view class="text">输入书名或作者开始搜索</view>
+  </view>
+
+  <view wx:elif="{{loading}}" class="loading">搜索中...</view>
+
+  <view wx:elif="{{books.length === 0}}" class="empty-state">
+    <view class="icon">📭</view>
+    <view class="text">未找到相关书籍</view>
+  </view>
+
+  <view wx:else>
+    <view class="result-count">找到 {{total}} 本相关书籍</view>
+    <view class="book-card" wx:for="{{books}}" wx:key="id" data-id="{{item.id}}" bindtap="toBook">
+      <image class="cover" src="{{item.coverUrl}}" mode="aspectFill" />
+      <view class="info">
+        <view>
+          <view class="title">{{item.title_cn || item.title_en || item.title}}</view>
+          <view class="author">{{item.author || item.publisher || ''}}</view>
+        </view>
+        <view class="meta">
+          <view class="price">¥{{item.price || '?'}}</view>
+          <view class="tag">{{item.category_name || ''}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

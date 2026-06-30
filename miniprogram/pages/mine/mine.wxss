@@ -1,0 +1,49 @@
+/* 我的 */
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 16px;
+  background: #fff;
+  margin-bottom: 8px;
+}
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #f0ede8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+.name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+}
+.desc {
+  font-size: 13px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.menu-list {
+  background: #fff;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f5f5f5;
+}
+.menu-item .icon { font-size: 18px; margin-right: 12px; }
+.menu-item .label { flex: 1; font-size: 15px; color: #333; }
+.menu-item .arrow { color: #ccc; font-size: 18px; }
+
+.footer-text {
+  text-align: center;
+  padding: 30px;
+  font-size: 12px;
+  color: #bbb;
+}

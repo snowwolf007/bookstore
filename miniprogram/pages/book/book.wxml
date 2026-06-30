@@ -1,0 +1,62 @@
+<!-- 书籍详情 -->
+<view class="page" wx:if="{{book}}">
+  <!-- 封面大图 -->
+  <view class="cover-section">
+    <image class="cover-big" src="{{book.coverUrl}}" mode="aspectFit" />
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <view class="title">{{book.title_cn || book.title_en || book.title}}</view>
+    <view class="title-en" wx:if="{{book.title_en && book.title_en !== book.title}}">{{book.title_en}}</view>
+    
+    <view class="info-grid">
+      <view wx:if="{{book.author}}" class="info-item">
+        <text class="label">作者</text>
+        <text class="value">{{book.author}}</text>
+      </view>
+      <view wx:if="{{book.publisher}}" class="info-item">
+        <text class="label">出版社</text>
+        <text class="value">{{book.publisher}}</text>
+      </view>
+      <view wx:if="{{book.isbn}}" class="info-item">
+        <text class="label">ISBN</text>
+        <text class="value">{{book.isbn}}</text>
+      </view>
+      <view wx:if="{{book.year}}" class="info-item">
+        <text class="label">出版年份</text>
+        <text class="value">{{book.year}}</text>
+      </view>
+    </view>
+
+    <!-- 价格 -->
+    <view class="price-row">
+      <view class="price">¥{{book.price || '?'}}</view>
+      <view class="stock" wx:if="{{book.stock > 0}}">库存 {{book.stock}} 本</view>
+      <view class="stock out" wx:else>暂时缺货</view>
+    </view>
+  </view>
+
+  <!-- 简介 -->
+  <view class="section" wx:if="{{book.description}}">
+    <view class="section-title">内容简介</view>
+    <view class="desc-text">{{book.description}}</view>
+  </view>
+
+  <!-- 目录 -->
+  <view class="section" wx:if="{{book.catalog_text}}">
+    <view class="section-title">目录</view>
+    <view class="catalog-text">{{book.catalog_text}}</view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-bar">
+    <button class="btn-cart" bindtap="addToCart">加入购物车</button>
+    <button class="btn-buy" bindtap="buyNow">立即购买</button>
+  </view>
+</view>
+
+<!-- 加载态 -->
+<view wx:else class="loading-page">
+  <view class="loading">加载中...</view>
+</view>

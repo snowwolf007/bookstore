@@ -1,0 +1,56 @@
+<!-- 首页 -->
+<view class="page">
+  <!-- 轮播 -->
+  <swiper class="banner" autoplay interval="4000" circular indicator-dots indicator-active-color="#2c3e50">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <view class="banner-item" data-id="{{item.id}}" bindtap="toBook">
+        <image class="banner-img" src="{{item.coverUrl}}" mode="aspectFill" />
+        <view class="banner-title">{{item.title}}</view>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 分类入口 -->
+  <view class="section">
+    <view class="section-title">分类浏览</view>
+    <view class="category-grid">
+      <view class="cat-item" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" bindtap="toCategory">
+        <view class="cat-icon">{{item.icon}}</view>
+        <view class="cat-name">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新书上架 -->
+  <view class="section">
+    <view class="section-title">全部书刊</view>
+    
+    <!-- 错误提示 -->
+    <view wx:if="{{errorMsg}}" class="error-box">
+      <view class="error-icon">⚠️</view>
+      <view class="error-text">{{errorMsg}}</view>
+      <button class="retry-btn" bindtap="loadData">重试</button>
+    </view>
+
+    <view wx:elif="{{loading}}" class="loading">加载中...</view>
+    <view wx:elif="{{books.length === 0}}" class="empty-state">
+      <view class="icon">📚</view>
+      <view class="text">暂无书刊</view>
+    </view>
+    <view wx:else>
+      <view class="book-card" wx:for="{{books}}" wx:key="id" data-id="{{item.id}}" bindtap="toBook">
+        <image class="cover" src="{{item.cover_path ? '/' + item.cover_path : ''}}" mode="aspectFill" />
+        <view class="info">
+          <view>
+            <view class="title">{{item.title_cn || item.title_en || item.title}}</view>
+            <view class="author">{{item.author || item.publisher || ''}}</view>
+          </view>
+          <view class="meta">
+            <view class="price"><text class="symbol">¥</text>{{item.price || '?'}}</view>
+            <view class="tag">{{item.category_name || '建筑'}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

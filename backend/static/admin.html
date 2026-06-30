@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>建筑书店 - 管理后台</title>
+<style>
+/* ===== 全局 ===== */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: #f5f5f5; color: #333; }
+a { color: #1a73e8; text-decoration: none; }
+
+/* ===== 布局 ===== */
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: #2c3e50; color: #fff; flex-shrink:0; }
+.sidebar h2 { padding: 20px; font-size: 18px; border-bottom: 1px solid #3d5166; }
+.sidebar nav { padding: 10px 0; }
+.sidebar nav a { display: block; padding: 12px 20px; color: #bdc3c7; cursor: pointer; transition: .2s; }
+.sidebar nav a:hover, .sidebar nav a.active { background: #34495e; color: #fff; }
+.main { flex:1; padding: 20px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.header h3 { font-size: 20px; }
+
+/* ===== 登录 ===== */
+.login-page { display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f5f5f5; }
+.login-box { background:#fff; padding:40px; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,.1); width:360px; }
+.login-box h1 { text-align:center; margin-bottom:24px; font-size:22px; }
+.login-box label { display:block; margin-bottom:4px; font-size:14px; color:#666; }
+.login-box input { width:100%; padding:10px; margin-bottom:16px; border:1px solid #ddd; border-radius:4px; font-size:14px; }
+.login-box button { width:100%; padding:12px; background:#1a73e8; color:#fff; border:none; border-radius:4px; font-size:16px; cursor:pointer; }
+.login-box button:hover { background:#1557b0; }
+.login-box .error { color:#e74c3c; font-size:14px; margin-bottom:8px; }
+
+/* ===== 页面面板 ===== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===== 表单/表格通用 ===== */
+.form-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.form-row > * { flex: 1; min-width: 200px; }
+.form-row label { display: block; font-size: 13px; color: #666; margin-bottom: 3px; }
+.form-row input, .form-row textarea, .form-row select { width:100%; padding:8px 10px; border:1px solid #ddd; border-radius:4px; font-size:14px; }
+.form-row textarea { resize: vertical; min-height: 80px; }
+
+.btn { display: inline-block; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+.btn-primary { background: #1a73e8; color: #fff; }
+.btn-primary:hover { background: #1557b0; }
+.btn-danger { background: #e74c3c; color: #fff; }
+.btn-danger:hover { background: #c0392b; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-outline { background: #fff; border: 1px solid #ddd; color: #333; }
+.btn-outline:hover { background: #f5f5f5; }
+
+.toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+.toolbar input, .toolbar select { padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; }
+
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+th { background: #f8f9fa; font-weight: 600; color: #555; }
+tr:hover { background: #f8f9ff; }
+
+.card { background: #fff; padding: 20px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 16px; }
+.card h4 { margin-bottom: 12px; color: #444; font-size: 15px; }
+
+.pagination { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.pagination button { padding: 6px 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; }
+.pagination button:hover { background: #f0f0f0; }
+.pagination span { font-size: 14px; color: #666; }
+
+.modal-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,.4); justify-content:center; align-items:center; z-index:100; }
+.modal-overlay.show { display: flex; }
+.modal { background: #fff; border-radius: 8px; padding: 24px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
+.modal h3 { margin-bottom: 16px; }
+.modal .form-row { margin-bottom: 10px; }
+.modal .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+.cover-thumb { width: 48px; height: 64px; object-fit: cover; border-radius: 3px; cursor: pointer; transition: .15s; }
+.cover-thumb:hover { transform: scale(1.08); box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+
+/* ===== 封面放大灯箱 ===== */
+.lightbox { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,.75); justify-content:center; align-items:center; z-index:300; cursor:zoom-out; }
+.lightbox.show { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 6px; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+.lightbox .close-btn { position:absolute; top:20px; right:28px; color:#fff; font-size:32px; cursor:pointer; opacity:.7; }
+.lightbox .close-btn:hover { opacity:1; }
+.tag { display: inline-block; padding: 2px 8px; background: #e8f0fe; color: #1a73e8; border-radius: 10px; font-size: 12px; margin: 2px; }
+.status-badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+.status-badge.on { background: #e8f5e9; color: #2e7d32; }
+.status-badge.off { background: #fce4ec; color: #c62828; }
+
+.empty-state { text-align: center; padding: 40px; color: #999; }
+
+/* 导入区 */
+.import-area { border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: .2s; }
+.import-area:hover { border-color: #1a73e8; background: #f8f9ff; }
+
+/* 图片预览 */
+.preview-grid { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.preview-grid img { width: 80px; height: 106px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+
+.toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 6px; color: #fff; z-index: 200; animation: fadeIn .3s; }
+.toast.success { background: #2e7d32; }
+.toast.error { background: #c62828; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- ===== 登录页 ===== -->
+<div class="login-page" id="loginPage">
+  <div class="login-box">
+    <h1>📚 建筑书店管理后台</h1>
+    <div class="error" id="loginError"></div>
+    <label>用户名</label>
+    <input type="text" id="loginUser" value="admin" autocomplete="username">
+    <label>密码</label>
+    <input type="password" id="loginPass" value="admin123" autocomplete="current-password">
+    <button onclick="doLogin()">登录</button>
+  </div>
+</div>
+
+<!-- ===== 管理界面 ===== -->
+<div class="app" id="adminApp" style="display:none">
+  <aside class="sidebar">
+    <h2>📚 建筑书店</h2>
+    <nav>
+      <a onclick="showPage('books')" id="nav-books" class="active">📖 书刊管理</a>
+      <a onclick="showPage('categories')" id="nav-categories">🏷 分类管理</a>
+      <a onclick="showPage('orders')" id="nav-orders">📦 订单管理</a>
+      <a onclick="showPage('import')" id="nav-import">📥 批量导入</a>
+      <a onclick="doLogout()" style="color:#e74c3c;margin-top:20px;">🚪 退出登录</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <!-- 书刊管理 -->
+    <div class="page active" id="page-books">
+      <div class="header"><h3>📖 书刊管理</h3></div>
+      <div class="toolbar">
+        <input type="text" id="bookSearch" placeholder="搜索书名/作者/ISBN..." oninput="loadBooks()" style="width:250px">
+        <select id="bookCategoryFilter" onchange="currentBookPage=1;loadBooks(1)"><option value="">全部分类</option></select>
+        <button class="btn btn-primary" onclick="showBookForm()">+ 新增书刊</button>
+        <button class="btn btn-outline" onclick="batchFetchCovers()">🖼️ 批量搜封面</button>
+      </div>
+      <table>
+        <thead><tr>
+          <th style="width:50px">封面</th><th>书名</th><th>作者</th><th>分类</th><th>价格</th><th>状态</th><th style="width:120px">操作</th>
+        </tr></thead>
+        <tbody id="bookList"></tbody>
+      </table>
+      <div class="pagination" id="bookPagination"></div>
+    </div>
+
+    <!-- 分类管理 -->
+    <div class="page" id="page-categories">
+      <div class="header"><h3>🏷 分类管理</h3></div>
+      <button class="btn btn-primary" onclick="showCategoryForm()" style="margin-bottom:12px">+ 新增分类</button>
+      <table><thead><tr><th>名称</th><th>标识(slug)</th><th>排序</th><th>操作</th></tr></thead>
+        <tbody id="categoryList"></tbody>
+      </table>
+    </div>
+
+    <!-- 订单管理 -->
+    <div class="page" id="page-orders">
+      <div class="header"><h3>📦 订单管理 <span style="font-size:14px;color:#999;font-weight:normal">（待对接微信支付后启用）</span></h3></div>
+      <div class="empty-state">暂无订单数据</div>
+    </div>
+
+    <!-- 批量导入 -->
+    <div class="page" id="page-import">
+      <div class="header"><h3>📥 批量导入书刊</h3></div>
+      <div class="card">
+        <h4>📊 从 Excel 文件导入</h4>
+        <p style="color:#666;margin-bottom:4px;font-size:14px">
+          按模板格式准备 Excel 文件，一键批量导入。<br>
+          <span style="font-size:12px;color:#999">支持列：书名（必填）、英文书名、中文书名、作者、出版社、ISBN、出版年份、定价、库存、分类、标签、简介、目录、封面文件名、上架</span>
+        </p>
+        <div style="margin:12px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input type="file" id="importExcelFile" accept=".xlsx,.xls" onchange="previewExcelImport(event)">
+          <a href="/admin/数据导入模板.xlsx" download style="font-size:13px;color:#1a73e8">📥 下载模板</a>
+        </div>
+        <div id="excelImportPreview" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <h4>📋 从 JSON 数据导入</h4>
+        <p style="color:#666;margin-bottom:12px;font-size:14px">选择 book_scraper 采集工具生成的 books_data.json 文件。</p>
+        <input type="file" id="importJsonFile" accept=".json" onchange="previewJsonImport(event)">
+        <div id="jsonImportPreview" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <h4>✍️ 手动逐本录入</h4>
+        <p style="color:#666;font-size:14px">可直接在「书刊管理」页点击"新增书刊"手动录入。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 书刊编辑弹窗 ===== -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal">
+    <h3 id="bookModalTitle">新增书刊</h3>
+    <div class="form-row">
+      <div><label>书名（原样） *</label><input id="f_title" placeholder="Mies，密斯·凡德罗..."></div>
+      <div><label>英文书名</label><input id="f_title_en" placeholder="Mies van der Rohe"></div>
+    </div>
+    <div class="form-row">
+      <div><label>中文书名</label><input id="f_title_cn" placeholder="密斯·凡德罗"></div>
+      <div><label>作者</label><input id="f_author"></div>
+    </div>
+    <div class="form-row">
+      <div><label>出版社</label><input id="f_publisher"></div>
+      <div><label>ISBN</label><input id="f_isbn"></div>
+    </div>
+    <div class="form-row">
+      <div><label>出版年份</label><input id="f_year"></div>
+      <div><label>定价（元）</label><input id="f_price" type="number" step="0.01"></div>
+    </div>
+    <div class="form-row">
+      <div><label>库存</label><input id="f_stock" type="number"></div>
+      <div><label>分类</label><select id="f_category_id"><option value="">无分类</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>标签（逗号分隔）</label><input id="f_tags" placeholder="建筑设计,进口原版"></div>
+    </div>
+    <div class="form-row">
+      <div><label>简介</label><textarea id="f_description" rows="3"></textarea></div>
+    </div>
+    <div class="form-row">
+      <div><label>目录文本</label><textarea id="f_catalog_text" rows="4"></textarea></div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>封面图片</label>
+        <input id="f_cover" type="file" accept="image/*">
+        <div id="coverPreview" class="preview-grid" style="margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div><label>状态</label>
+        <label style="font-weight:normal;display:inline;margin-left:4px"><input type="checkbox" id="f_published" checked> 上架</label>
+        <label style="font-weight:normal;display:inline;margin-left:12px"><input type="checkbox" id="f_featured"> 推荐</label>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline" onclick="closeModal('bookModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveBook()">保存</button>
+    </div>
+    <input type="hidden" id="f_id" value="">
+  </div>
+</div>
+
+<!-- ===== 分类弹窗 ===== -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal" style="max-width:420px">
+    <h3 id="catModalTitle">新增分类</h3>
+    <div class="form-row">
+      <div><label>分类名称 *</label><input id="fc_name"></div>
+      <div><label>标识 (slug)</label><input id="fc_slug"></div>
+    </div>
+    <div class="form-row">
+      <div><label>父分类</label><select id="fc_parent_id"><option value="">无（顶级）</option></select></div>
+      <div><label>排序</label><input id="fc_sort" type="number" value="0"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline" onclick="closeModal('categoryModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveCategory()">保存</button>
+    </div>
+    <input type="hidden" id="fc_id" value="">
+  </div>
+</div>
+
+<script>
+const API = ''; // 同域
+let token = localStorage.getItem('token') || '';
+
+// ===== 登录 =====
+function doLogin() {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  fetch(API + '/api/admin/login', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({username:u, password:p})
+  }).then(r => r.json()).then(data => {
+    if (data.access_token) {
+      token = data.access_token;
+      localStorage.setItem('token', token);
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('adminApp').style.display = 'flex';
+      initApp();
+    } else {
+      document.getElementById('loginError').textContent = '用户名或密码错误';
+    }
+  }).catch(e => {
+    document.getElementById('loginError').textContent = '无法连接服务器';
+  });
+}
+function doLogout() { localStorage.removeItem('token'); location.reload(); }
+
+// ===== 初始化 =====
+function initApp() {
+  if (!token) return;
+  loadBooks();
+  loadCategories();
+  loadCategorySelects();
+}
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+// ===== Toast =====
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ===== API 请求 =====
+async function api(method, path, body, isForm) {
+  const opts = {
+    method, headers: {'Authorization': 'Bearer ' + token}
+  };
+  if (body && !isForm) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  else if (body && isForm) { opts.body = body; }
+  const r = await fetch(API + path, opts);
+  if (!r.ok) {
+    const err = await r.json().catch(()=>({detail:'请求失败'}));
+    throw new Error(err.detail || '请求失败');
+  }
+  return r.json();
+}
+
+// ===== 书刊管理 =====
+let currentBookPage = 1;
+async function loadBooks(page) {
+  if (page) currentBookPage = page;
+  const search = document.getElementById('bookSearch').value;
+  const catFilter = document.getElementById('bookCategoryFilter').value;
+  let url = `/api/admin/books?page=${currentBookPage}&page_size=20`;
+  if (search) url += '&search=' + encodeURIComponent(search);
+  if (catFilter) url += '&category_id=' + catFilter;
+  try {
+    const books = await api('GET', url);
+    const tbody = document.getElementById('bookList');
+    if (!books || books.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无书刊数据</td></tr>';
+      document.getElementById('bookPagination').innerHTML = '';
+      return;
+    }
+    tbody.innerHTML = books.map(b => `
+      <tr>
+        <td>${b.cover_path ? '<img class="cover-thumb" src="/'+b.cover_path+'" onclick="zoomCover(\'/'+b.cover_path+'\')" onerror="this.style.display=\'none\'">' : '<img class="cover-thumb" src="/admin/placeholder.svg" style="opacity:0.5">'}</td>
+        <td><strong>${b.title_cn || b.title_en || b.title}</strong><br><span style="font-size:12px;color:#999">${b.title}</span></td>
+        <td>${b.author || '-'}</td>
+        <td>${b.category_name || '-'}</td>
+        <td>${b.price ? '¥'+b.price : '-'}</td>
+        <td><span class="status-badge ${b.is_published?'on':'off'}">${b.is_published?'已上架':'已下架'}</span></td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="editBook(${b.id})">编辑</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBook(${b.id})">删除</button>
+          ${b.cover_path ? '' : '<button class="btn btn-sm" style="background:#fff;border:1px solid #1a73e8;color:#1a73e8" onclick="fetchCover('+b.id+')">搜封面</button>'}
+        </td>
+      </tr>
+    `).join('');
+    // 分页
+    let countUrl = `/api/admin/books/count?search=${encodeURIComponent(search)}`;
+    if (catFilter) countUrl += '&category_id=' + catFilter;
+    const count = await api('GET', countUrl);
+    const total = count.count || books.length;
+    const totalPages = Math.ceil(total / 20);
+    document.getElementById('bookPagination').innerHTML = `
+      <button onclick="loadBooks(${currentBookPage-1})" ${currentBookPage<=1?'disabled':''}>上一页</button>
+      <span>第 ${currentBookPage}/${totalPages} 页 (共 ${total} 条)</span>
+      <button onclick="loadBooks(${currentBookPage+1})" ${currentBookPage>=totalPages?'disabled':''}>下一页</button>
+    `;
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ===== 分类管理 =====
+async function loadCategories() {
+  try {
+    const cats = await api('GET', '/api/admin/categories');
+    const flatten = [];
+    function walk(list, level=0) {
+      for (const c of list) {
+        flatten.push({...c, level});
+        if (c.children) walk(c.children, level+1);
+      }
+    }
+    walk(cats);
+    document.getElementById('categoryList').innerHTML = flatten.map(c => `
+      <tr>
+        <td>${'&nbsp;&nbsp;'.repeat(c.level)}${c.name}</td>
+        <td>${c.slug}</td>
+        <td>${c.sort_order}</td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="editCategory(${c.id})">编辑</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCategory(${c.id})">删除</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function loadCategorySelects() {
+  try {
+    const cats = await api('GET', '/api/admin/categories');
+    const flatten = [];
+    function walk(list, level=0) {
+      for (const c of list) {
+        flatten.push({...c, level});
+        if (c.children) walk(c.children, level+1);
+      }
+    }
+    walk(cats);
+    const html = '<option value="">无分类</option>' + flatten.map(c =>
+      '<option value="'+c.id+'">'+'&nbsp;&nbsp;'.repeat(c.level)+c.name+'</option>'
+    ).join('');
+    document.getElementById('f_category_id').innerHTML = html;
+    document.getElementById('fc_parent_id').innerHTML = '<option value="">无（顶级）</option>' + flatten.map(c =>
+      '<option value="'+c.id+'">'+'&nbsp;&nbsp;'.repeat(c.level)+c.name+'</option>'
+    ).join('');
+    document.getElementById('bookCategoryFilter').innerHTML = '<option value="">全部分类</option>' + flatten.map(c =>
+      '<option value="'+c.id+'">'+'&nbsp;&nbsp;'.repeat(c.level)+c.name+'</option>'
+    ).join('');
+  } catch(e) { /* 忽略 */ }
+}
+
+// ===== 书刊编辑 =====
+function showBookForm() {
+  document.getElementById('bookModalTitle').textContent = '新增书刊';
+  document.getElementById('f_id').value = '';
+  ['f_title','f_title_en','f_title_cn','f_author','f_publisher','f_isbn','f_year','f_description','f_catalog_text','f_tags'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_price').value = ''; document.getElementById('f_stock').value = '';
+  document.getElementById('f_category_id').value = '';
+  document.getElementById('f_published').checked = true;
+  document.getElementById('f_featured').checked = false;
+  document.getElementById('coverPreview').innerHTML = '';
+  document.getElementById('bookModal').classList.add('show');
+}
+
+async function editBook(id) {
+  try {
+    const books = await api('GET', `/api/admin/books?page=1&page_size=100`);
+    const b = books.find(x => x.id === id);
+    if (!b) return toast('未找到该书', 'error');
+    document.getElementById('bookModalTitle').textContent = '编辑书刊';
+    document.getElementById('f_id').value = b.id;
+    document.getElementById('f_title').value = b.title || '';
+    document.getElementById('f_title_en').value = b.title_en || '';
+    document.getElementById('f_title_cn').value = b.title_cn || '';
+    document.getElementById('f_author').value = b.author || '';
+    document.getElementById('f_publisher').value = b.publisher || '';
+    document.getElementById('f_isbn').value = b.isbn || '';
+    document.getElementById('f_year').value = b.year || '';
+    document.getElementById('f_price').value = b.price || '';
+    document.getElementById('f_stock').value = b.stock || '';
+    document.getElementById('f_category_id').value = b.category_id || '';
+    document.getElementById('f_tags').value = (b.tags || []).join(', ');
+    document.getElementById('f_description').value = b.description || '';
+    document.getElementById('f_catalog_text').value = b.catalog_text || '';
+    document.getElementById('f_published').checked = b.is_published !== false;
+    document.getElementById('f_featured').checked = b.is_featured || false;
+    document.getElementById('coverPreview').innerHTML = b.cover_path ? '<img src="/'+b.cover_path+'" style="width:80px;height:106px;object-fit:cover">' : '';
+    document.getElementById('bookModal').classList.add('show');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function saveBook() {
+  const id = document.getElementById('f_id').value;
+  const form = new FormData();
+  form.append('title', document.getElementById('f_title').value);
+  form.append('title_en', document.getElementById('f_title_en').value);
+  form.append('title_cn', document.getElementById('f_title_cn').value);
+  form.append('author', document.getElementById('f_author').value);
+  form.append('publisher', document.getElementById('f_publisher').value);
+  form.append('isbn', document.getElementById('f_isbn').value);
+  form.append('year', document.getElementById('f_year').value);
+  form.append('price', document.getElementById('f_price').value || '0');
+  form.append('stock', document.getElementById('f_stock').value || '0');
+  form.append('description', document.getElementById('f_description').value);
+  form.append('catalog_text', document.getElementById('f_catalog_text').value);
+  form.append('category_id', document.getElementById('f_category_id').value || '0');
+  const tags = document.getElementById('f_tags').value.split(/[,，]/).map(t => t.trim()).filter(Boolean);
+  form.append('tags', JSON.stringify(tags));
+  form.append('is_published', document.getElementById('f_published').checked ? 'true' : 'false');
+  form.append('is_featured', document.getElementById('f_featured').checked ? 'true' : 'false');
+  const coverFile = document.getElementById('f_cover').files[0];
+  if (coverFile) form.append('cover', coverFile);
+
+  try {
+    if (id) {
+      form.append('_method', 'PUT');
+      const r = await fetch(API + `/api/admin/books/${id}`, {
+        method: 'POST', headers: {'Authorization': 'Bearer ' + token}, body: form
+      });
+      if (!r.ok) { const e = await r.json().catch(()=>({detail:'失败'})); throw new Error(e.detail); }
+      await r.json();
+      toast('更新成功');
+    } else {
+      await fetch(API + '/api/admin/books', {
+        method: 'POST', headers: {'Authorization': 'Bearer ' + token}, body: form
+      }).then(async r => { if (!r.ok) { const e = await r.json(); throw new Error(e.detail); } return r.json(); });
+      toast('创建成功');
+    }
+    closeModal('bookModal');
+    loadBooks(1);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteBook(id) {
+  if (!confirm('确定删除此书刊？')) return;
+  try {
+    await api('DELETE', `/api/admin/books/${id}`);
+    toast('已删除');
+    loadBooks();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ===== 自动搜索封面 =====
+async function fetchCover(id) {
+  try {
+    const r = await fetch(API + '/api/admin/books/' + id + '/fetch-cover', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await r.json();
+    if (data.success && data.cover_path) {
+      toast('🖼️ 封面已获取');
+      loadBooks();
+    } else {
+      toast('❌ 未找到封面', 'error');
+    }
+  } catch(e) {
+    toast('❌ ' + e.message, 'error');
+  }
+}
+
+async function batchFetchCovers() {
+  if (!confirm('为所有无封面的书刊自动搜索封面？\n每本最多约30秒，并行10本同时搜。')) return;
+  const btn = document.querySelector('[onclick="batchFetchCovers()"]');
+  btn.disabled = true;
+  btn.textContent = '⏳ 搜索中...';
+
+  // 显示进度弹窗
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay show';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:600px">
+      <h3>🖼️ 批量搜封面</h3>
+      <div id="batchProgress" style="margin:12px 0;font-size:14px">⏳ 搜索中，请稍候...</div>
+      <div id="batchResults" style="max-height:400px;overflow-y:auto;font-size:13px"></div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove();loadBooks()">完成</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  try {
+    // 设置60秒前端超时
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('请求超时，请重试')), 120000)
+    );
+    const r = await Promise.race([
+      fetch(API + '/api/admin/books/batch/cover-fetch', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      }),
+      timeoutPromise
+    ]);
+    const data = await r.json();
+    const resultsDiv = document.getElementById('batchResults');
+    const progressDiv = document.getElementById('batchProgress');
+
+    if (data.success) {
+      let html = '';
+      let ok = 0, fail = 0;
+      for (const res of data.results || []) {
+        if (res.status === 'ok') { ok++; html += `<div style="color:#2e7d32;padding:2px 0">✅ ${res.title}</div>`; }
+        else if (res.status === 'not_found') { fail++; html += `<div style="color:#999;padding:2px 0">❌ ${res.title} — 未找到</div>`; }
+        else { fail++; html += `<div style="color:#c62828;padding:2px 0">⏱ ${res.title} — ${res.status}</div>`; }
+      }
+      progressDiv.textContent = `✅ 完成！成功 ${data.fetched}/${data.total} 本`;
+      resultsDiv.innerHTML = html;
+    } else {
+      progressDiv.textContent = '❌ ' + (data.message || '失败');
+    }
+  } catch(e) {
+    document.getElementById('batchProgress').textContent = '❌ ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🖼️ 批量搜封面';
+  }
+}
+
+// ===== 分类编辑 =====
+function showCategoryForm() {
+  document.getElementById('catModalTitle').textContent = '新增分类';
+  document.getElementById('fc_id').value = '';
+  document.getElementById('fc_name').value = '';
+  document.getElementById('fc_slug').value = '';
+  document.getElementById('fc_parent_id').value = '';
+  document.getElementById('fc_sort').value = '0';
+  document.getElementById('categoryModal').classList.add('show');
+}
+
+async function editCategory(id) {
+  try {
+    const cats = await api('GET', '/api/admin/categories');
+    const flatten = [];
+    function walk(list) { for (const c of list) { flatten.push(c); if (c.children) walk(c.children); } }
+    walk(cats);
+    const c = flatten.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('catModalTitle').textContent = '编辑分类';
+    document.getElementById('fc_id').value = c.id;
+    document.getElementById('fc_name').value = c.name;
+    document.getElementById('fc_slug').value = c.slug;
+    document.getElementById('fc_parent_id').value = c.parent_id || '';
+    document.getElementById('fc_sort').value = c.sort_order;
+    document.getElementById('categoryModal').classList.add('show');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function saveCategory() {
+  const id = document.getElementById('fc_id').value;
+  const body = {
+    name: document.getElementById('fc_name').value,
+    slug: document.getElementById('fc_slug').value || document.getElementById('fc_name').value,
+    parent_id: parseInt(document.getElementById('fc_parent_id').value) || null,
+    sort_order: parseInt(document.getElementById('fc_sort').value) || 0,
+  };
+  try {
+    if (id) { await api('PUT', `/api/admin/categories/${id}`, body); toast('已更新'); }
+    else { await api('POST', '/api/admin/categories', body); toast('已创建'); }
+    closeModal('categoryModal');
+    loadCategories();
+    loadCategorySelects();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteCategory(id) {
+  if (!confirm('确定删除此分类？')) return;
+  try { await api('DELETE', `/api/admin/categories/${id}`); toast('已删除'); loadCategories();  loadCategorySelects(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+// ===== 批量导入 =====
+// --- Excel 导入 ---
+function previewExcelImport(event) {
+  const file = event.target.files[0];
+  const preview = document.getElementById('excelImportPreview');
+  if (!file) { preview.innerHTML = ''; return; }
+  if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+    preview.innerHTML = '<div style="color:red">请选择 .xlsx 或 .xls 格式的文件</div>';
+    return;
+  }
+  preview.innerHTML = `
+    <div style="background:#f8f9ff;padding:16px;border-radius:6px;">
+      <p><strong>📊 文件：</strong> ${file.name} (${(file.size/1024).toFixed(1)} KB)</p>
+      <p style="font-size:13px;color:#666;margin:4px 0 8px">将按模板列名匹配，已有书名自动跳过。</p>
+      <button class="btn btn-primary" onclick="doExcelImport()" id="excelImportBtn">🚀 开始导入</button>
+      <span id="excelImportProgress" style="margin-left:12px;font-size:13px;color:#666"></span>
+    </div>
+  `;
+}
+
+async function doExcelImport() {
+  const fileInput = document.getElementById('importExcelFile');
+  const file = fileInput.files[0];
+  if (!file) return;
+  const btn = document.getElementById('excelImportBtn');
+  const prog = document.getElementById('excelImportProgress');
+  btn.disabled = true;
+  prog.textContent = '上传中...';
+
+  try {
+    const form = new FormData();
+    form.append('file', file);
+    const r = await fetch(API + '/api/admin/books/excel-import', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(()=>({detail:'导入失败'}));
+      throw new Error(err.detail || '导入失败');
+    }
+    const data = await r.json();
+    const msg = `✅ 导入完成：成功 ${data.imported} 本，跳过（已存在）${data.skipped} 本`;
+    prog.textContent = msg;
+    prog.style.color = '#2e7d32';
+    toast(msg);
+    loadBooks();
+  } catch(e) {
+    prog.textContent = '❌ ' + e.message;
+    prog.style.color = '#c62828';
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// --- JSON 导入 ---
+function previewJsonImport(event) {
+  const file = event.target.files[0];
+  const preview = document.getElementById('jsonImportPreview');
+  if (!file) { preview.innerHTML = ''; return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      const books = data.books || data || [];
+      const total = books.length || 0;
+      const ok = (books.filter ? books.filter(b => b.status === '封面OK' || b.cover_path) : books).length || 0;
+      preview.innerHTML = `
+        <div style="background:#f8f9ff;padding:16px;border-radius:6px;">
+          <p><strong>预览：</strong> ${total} 条数据，其中 ${ok} 条有封面</p>
+          <button class="btn btn-primary" onclick="doJsonImport()">确认导入</button>
+          <span id="jsonImportProgress" style="margin-left:12px;font-size:13px;color:#666"></span>
+        </div>
+      `;
+    } catch(err) {
+      preview.innerHTML = '<div style="color:red">❌ JSON 格式错误，请检查文件</div>';
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function doJsonImport() {
+  const fileInput = document.getElementById('importJsonFile');
+  const file = fileInput.files[0];
+  if (!file) return;
+  const prog = document.getElementById('jsonImportProgress');
+  const text = await file.text();
+  const data = JSON.parse(text);
+  const books = data.books || data || [];
+  let count = 0, errors = [];
+  prog.textContent = `导入中 (0/${books.length})...`;
+
+  for (let i = 0; i < books.length; i++) {
+    const b = books[i];
+    try {
+      const form = new FormData();
+      form.append('title', b.raw_name || b.title || '');
+      form.append('title_en', b.english_title || '');
+      form.append('title_cn', b.chinese_title || '');
+      form.append('author', b.author || '');
+      form.append('publisher', b.publisher || '');
+      form.append('isbn', b.isbn || '');
+      form.append('description', b.description || '');
+      form.append('catalog_text', b.catalog_text || '');
+      form.append('price', '0'); form.append('stock', '1');
+      form.append('tags', '[]');
+      form.append('is_published', 'true');
+      const r = await fetch(API + '/api/admin/books', {
+        method:'POST', headers:{'Authorization':'Bearer '+token}, body:form
+      });
+      if (r.ok) { count++; }
+      else { const e = await r.json(); errors.push((b.raw_name||b.title||'?').slice(0,20) + ': ' + (e.detail||'失败')); }
+    } catch(e) { errors.push((b.raw_name||b.title||'?').slice(0,20) + ': ' + e.message); }
+    if ((i+1) % 10 === 0) {
+      prog.textContent = `导入中 (${i+1}/${books.length})...`;
+      await new Promise(r => setTimeout(r, 0)); // yield
+    }
+  }
+  const msg = `成功导入 ${count}/${books.length} 本书刊` + (errors.length ? '\n失败：' + errors.join('\n') : '');
+  prog.textContent = '✅ ' + msg.slice(0, 40);
+  toast(msg);
+  document.getElementById('jsonImportPreview').innerHTML = '';
+  loadBooks();
+}
+
+// ===== 弹窗控制 =====
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+});
+
+// ===== 封面放大灯箱 =====
+function zoomCover(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('show');
+}
+
+// ===== 自动登录 =====
+if (token) {
+  fetch(API + '/api/admin/me', {headers:{'Authorization':'Bearer '+token}})
+    .then(r => { if (r.ok) { document.getElementById('loginPage').style.display='none'; document.getElementById('adminApp').style.display='flex'; initApp(); } })
+    .catch(() => { localStorage.removeItem('token'); });
+}
+</script>
+
+<!-- ===== 封面放大灯箱 HTML ===== -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('show')">
+  <span class="close-btn">&times;</span>
+  <img id="lightboxImg" src="" alt="封面大图">
+</div>
+
+</body>
+</html>
