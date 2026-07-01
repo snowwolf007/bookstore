@@ -20,8 +20,17 @@ bookstore.db
 Thumbs.db
 
 # Uploads (keep the directory, ignore files)
-uploads/covers/
-uploads/catalogs/
+backend/uploads/covers/
+backend/uploads/catalogs/
+
+# 旧版平铺文件（已迁移到 app/ 包内）
+backend/__init__.py
+backend/database.py
+backend/models.py
+backend/schemas.py
+backend/routers/
+backend/import_data.py
+backend/admin/
 
 # Debug / 测试文件
 debug_*.py
@@ -30,6 +39,9 @@ gen_template.py
 import_books.py
 link_covers.py
 run.py
+
+# Excel 原始数据（含店铺信息）
+backend/*.xlsx
 
 # Temp
 __pycache__/
